@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <button id="success1">默认请求</button>
+  <button id="success2">请求防抖</button>
+  <button id="success3">请求取消</button>
+  <button id="error1">全局错误拦截</button>
+  <button id="error2">自定义错误拦截</button>
+  <button id="download1">下载文件</button>
+
+  <script src="/axios/dist/axios.js"></script>
+  <script>
+    window.qs = {
+      stringify: JSON.stringify
+    }
+  </script>
+  <script src="/index.unpkg.min.js"></script>
+  <script type="module">
+    import { transform, requestOptions } from "/config.js"
+
+    // 通用全局请求配置设置
+    const defaultConfig = {
+      // baseURL: "",
+      // 超时设置300s
+      // timeout: 300000,
+      transform: transform,
+      requestOptions: requestOptions,
+    }
+    const service = window._yfRequest_.createAxios(defaultConfig)
+
+    const success1 = document.getElementById("success1")
+    success1.addEventListener("click", async () => {
+      const result = await service.get("/mock-url")
+      console.log("===========> success1 result", result)
+    })
+
+    const success2 = document.getElementById("success2")
+    success2.addEventListener("click", async () => {
+      const result = await service.get("/mock-delay", null,  {
+        isCancelDuplicate: false, // 去除重复请求影响
+        debounce: {
+          delay: 3000,
+          immediate: true, // 是否请求返回后去除防抖限制
+        },
+      })
+      console.log("===========> success2 result", result)
+    })
+
+    const success3 = document.getElementById("success3")
+    success3.addEventListener("click", async () => {
+      const result = await service.get("/mock-delay", null,  {
+        debounce: false, // 去除防抖处理的影响
+      })
+      console.log("===========> success3 result", result)
+    })
+
+    const error1 = document.getElementById("error1")
+    error1.addEventListener("click", async () => {
+      const result = await service.get("/mock-error")
+      console.log("===========> error1 result", result)
+    })
+
+    const error2 = document.getElementById("error2")
+    error2.addEventListener("click", async () => {
+      try {
+        const result = await service.get("/mock-error", null, {
+        isShowErrorTips: false, // 开启后，不主动拦截错误
+      })
+        console.log("===========> error2 result", result)
+      }catch(error) {
+        // 使用 withErrorHandler 去除内部自定义错误项干扰
+        window._yfRequest_.withErrorHandler(error)(() => console.error(`错误信息自定义处理：${error?.errmsg || error?.message || JSON.stringify(error)}`))
+      }
+    })
+
+    const download1 = document.getElementById("download1")
+    download1.addEventListener("click", async () => {
+      try {
+        console.log(' ======> download start')
+        const result = await service.getBlob("/mock-download")
+        window._yfRequest_.saveAs(result.data, result.headers.fileName)
+        console.log(' ======> download end', result)
+      }catch(error) {
+        // 使用 withErrorHandler 去除内部自定义错误项干扰
+        window._yfRequest_.withErrorHandler(error)(() => console.error(`下载错误自定义处理：${error?.errmsg || error?.message || JSON.stringify(error)}`))
+      }
+    })
+  </script>
+
+</body>
+
+</html>
