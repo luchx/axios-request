@@ -1,5 +1,5 @@
 import axios from "axios";
-import { isCancel } from "../core/axiosDebounce";
+import { debounceCancel } from "../core/axiosDebounce";
 import { isFunction } from "./utils";
 
 /**
@@ -8,7 +8,7 @@ import { isFunction } from "./utils";
  * @returns 
  */
 export const isCustomCancel = (err: Error) => {
-  return isCancel(err) || axios.isCancel(err)
+  return debounceCancel(err) || axios.isCancel(err)
 }
 
 /**
@@ -17,7 +17,7 @@ export const isCustomCancel = (err: Error) => {
  * @param argus any[]
  * @returns Function
  */
-export const withErrorHandler = (err: Error, ...argus: any[]) => (callback: Function) => {
+export const withErrorHandler = (err: Error, ...argus: any[]) => (callback?: Function) => {
   if (!isFunction(callback)) {
     console.error("this callback is not a function.");
     return;

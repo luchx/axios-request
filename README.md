@@ -164,6 +164,12 @@ export abstract class AxiosTransform {
   ) => AxiosRequestConfig;
 
   /**
+   * @description: 请求之后处理配置
+   * @description: Process configuration after request
+   */
+  afterRequestHook?: () => void;
+
+  /**
    * @description: 格式化响应数据
    */
   formatResponseData?: (

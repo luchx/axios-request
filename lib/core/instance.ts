@@ -10,7 +10,7 @@ import {
 import { AxiosCanceler } from "./axiosCancel";
 import { isFunction } from "../helper/utils";
 import { ContentTypeEnum, RequestEnum, ResultEnum } from "../types/enum";
-import { AxiosDebounce } from "./axiosDebounce";
+import { AxiosDebounce, DebounceError } from "./axiosDebounce";
 import { isCustomCancel } from "lib/helper/withError";
 
 class AxiosInstall {
@@ -111,7 +111,7 @@ class AxiosInstall {
       requestOptions,
       options
     );
-    const { beforeRequestHook, errorTipsCallback, formatResponseData } =
+    const { beforeRequestHook, errorTipsCallback, formatResponseData, afterRequestHook } =
       transform || {};
     if (isFunction(beforeRequestHook)) {
       axiosConfig = await beforeRequestHook(axiosConfig, mergeOptions);
@@ -129,7 +129,7 @@ class AxiosInstall {
 
     try {
       if (debounceInstance.has(axiosConfig)) {
-        return Promise.reject(debounceInstance.catchError());
+        throw new DebounceError()
       }
       debounceInstance.add(axiosConfig);
       const response = await this.axiosInstance.request(axiosConfig);
@@ -170,6 +170,11 @@ class AxiosInstall {
       if (mergeOptions.debounce?.immediate) {
         // 如果此时报错，则直接移除
         debounceInstance.remove(axiosConfig);
+      }
+
+      // 请求完成后执行
+      if (isFunction(afterRequestHook)) {
+        afterRequestHook();
       }
     }
   }

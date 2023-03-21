@@ -337,6 +337,11 @@ declare abstract class AxiosTransform {
      */
     beforeRequestHook?: (config: AxiosRequestConfig, options: RequestOptions) => AxiosRequestConfig;
     /**
+     * @description: 请求之后处理配置
+     * @description: Process configuration after request
+     */
+    afterRequestHook?: () => void;
+    /**
      * @description: 格式化响应数据
      */
     formatResponseData?: (response: ResponseData, options: RequestOptions) => ResponseData;
@@ -396,7 +401,7 @@ declare const saveAs: SaveAs;
  * @param argus any[]
  * @returns Function
  */
-declare const withErrorHandler: (err: Error, ...argus: any[]) => (callback: Function) => void;
+declare const withErrorHandler: (err: Error, ...argus: any[]) => (callback?: Function) => void;
 
 declare function createAxios(options: CreateAxiosOptions): AxiosInstall;
 

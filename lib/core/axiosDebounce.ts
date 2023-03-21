@@ -1,5 +1,5 @@
-import { AxiosRequestConfig } from "axios";
-import { DebounceOption } from "lib/types/interface";
+import { AxiosError, AxiosRequestConfig } from "axios";
+import { DebounceOption } from "../types/interface";
 import { getPendingUrl } from "../helper/utils";
 
 interface PendingData {
@@ -9,9 +9,13 @@ interface PendingData {
 // 声明一个 Map 用于存储每个请求的标识
 let pendingMap = new Map<string, PendingData>();
 
-export const errorText = "canceled from debounce";
+export class DebounceError extends AxiosError {
+  name = 'DebounceError';
+  message = "canceled from debounce";
+  __DEBOUNCE_CANCEL__ = true
+}
 
-export function isCancel(err) {
+export function debounceCancel(err) {
   return !!(err && err.__DEBOUNCE_CANCEL__);
 }
 
@@ -51,16 +55,5 @@ export class AxiosDebounce {
     if (pendingMap.has(url)) {
       pendingMap.delete(url);
     }
-  }
-
-  catchError() {
-    return {
-      message: errorText,
-      __DEBOUNCE_CANCEL__: true,
-    };
-  }
-
-  isCancel(err) {
-    return isCancel(err);
   }
 }

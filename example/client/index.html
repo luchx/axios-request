@@ -38,8 +38,12 @@
 
     const success1 = document.getElementById("success1")
     success1.addEventListener("click", async () => {
-      const result = await service.get("/mock-url")
+      try {
+        const result = await service.get("/mock-url")
       console.log("===========> success1 result", result)
+      }catch(err) {
+        console.log(err)
+      }
     })
 
     const success2 = document.getElementById("success2")
@@ -56,10 +60,14 @@
 
     const success3 = document.getElementById("success3")
     success3.addEventListener("click", async () => {
-      const result = await service.get("/mock-delay", null,  {
+      try {
+        const result = await service.get("/mock-delay", null,  {
         debounce: false, // 去除防抖处理的影响
       })
       console.log("===========> success3 result", result)
+      }catch(err) {
+        console.log(err)
+      }
     })
 
     const error1 = document.getElementById("error1")
